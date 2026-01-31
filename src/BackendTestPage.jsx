@@ -85,6 +85,18 @@ const BackendTestPage = () => {
             }}>
               {JSON.stringify(testResults.connection, null, 2)}
             </pre>
+            
+            {testResults.connection.solution && (
+              <div style={{
+                marginTop: '1rem',
+                padding: '1rem',
+                backgroundColor: '#fef3c7',
+                border: '1px solid #fcd34d',
+                borderRadius: '0.5rem'
+              }}>
+                <strong>💡 Solution:</strong> {testResults.connection.solution}
+              </div>
+            )}
           </div>
 
           <div style={{ marginBottom: '1rem' }}>
@@ -101,14 +113,25 @@ const BackendTestPage = () => {
           </div>
 
           <div>
-            <h3>🔧 Troubleshooting Tips:</h3>
-            <ul style={{ lineHeight: '1.6' }}>
-              <li>If connection fails: Check Firebase configuration in firebase.js</li>
-              <li>If rules fail: Update Firestore security rules in Firebase Console</li>
-              <li>If no hospitals found: Register a hospital first</li>
-              <li>If no departments found: Hospital registration creates basic departments</li>
-              <li>If no doctors found: Add doctors via hospital dashboard</li>
-            </ul>
+            <h3>🔧 Troubleshooting Guide:</h3>
+            <div style={{ lineHeight: '1.8' }}>
+              <h4>Common Issues & Solutions:</h4>
+              <ul style={{ paddingLeft: '1.5rem' }}>
+                <li><strong>Permission Denied:</strong> Update Firestore security rules in Firebase Console</li>
+                <li><strong>No Hospitals Found:</strong> Register a hospital first at /register</li>
+                <li><strong>No Departments:</strong> New hospitals get basic departments automatically</li>
+                <li><strong>No Doctors:</strong> Add doctors via hospital dashboard</li>
+                <li><strong>Connection Failed:</strong> Check Firebase configuration in firebase.js</li>
+              </ul>
+              
+              <h4>Quick Fixes:</h4>
+              <ol style={{ paddingLeft: '1.5rem' }}>
+                <li>Go to <a href="https://console.firebase.google.com" target="_blank" rel="noopener noreferrer" style={{ color: '#2563eb' }}>Firebase Console</a></li>
+                <li>Navigate to Firestore Database → Rules</li>
+                <li>Update rules to allow public read access</li>
+                <li>Publish the rules</li>
+              </ol>
+            </div>
           </div>
         </div>
       )}
