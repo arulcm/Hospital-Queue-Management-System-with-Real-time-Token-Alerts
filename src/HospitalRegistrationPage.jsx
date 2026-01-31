@@ -5,7 +5,7 @@ import { Building, Mail, Phone, Lock, User, MapPin, CheckCircle, AlertCircle, Lo
 import { useTheme } from './ThemeContext';
 import { auth, db } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 const HospitalRegistrationPage = () => {
   const { theme } = useTheme();
@@ -82,6 +82,21 @@ const HospitalRegistrationPage = () => {
       };
 
       await setDoc(doc(db, 'hospitals', hospitalId), hospitalData);
+
+      // Create basic departments for the hospital
+      const basicDepartments = [
+        { name: 'General Medicine', description: 'General health consultations' },
+        { name: 'Emergency', description: 'Emergency medical services' }
+      ];
+
+      // Add basic departments to Firestore
+      for (const dept of basicDepartments) {
+        await addDoc(collection(db, `hospitals/${hospitalId}/departments`), {
+          ...dept,
+          isActive: true,
+          createdAt: serverTimestamp()
+        });
+      }
 
       setSuccess(true);
       
