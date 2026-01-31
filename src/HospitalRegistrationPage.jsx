@@ -5,7 +5,7 @@ import { Building, Mail, Phone, Lock, User, MapPin, CheckCircle, AlertCircle, Lo
 import { useTheme } from './ThemeContext';
 import { auth, db } from './firebase';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc, addDoc, collection, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, collection, serverTimestamp } from 'firebase/firestore';
 
 const HospitalRegistrationPage = () => {
   const { theme } = useTheme();
@@ -82,27 +82,6 @@ const HospitalRegistrationPage = () => {
       };
 
       await setDoc(doc(db, 'hospitals', hospitalId), hospitalData);
-
-      // Create default departments for the hospital
-      const defaultDepartments = [
-        { name: 'General Medicine', description: 'General health consultations and check-ups' },
-        { name: 'Emergency', description: 'Emergency medical services and urgent care' },
-        { name: 'Pediatrics', description: 'Medical care for infants, children, and adolescents' },
-        { name: 'Cardiology', description: 'Heart and cardiovascular system treatments' },
-        { name: 'Orthopedics', description: 'Bone, joint, and muscle treatments' },
-        { name: 'Gynecology', description: 'Women\'s health and reproductive services' },
-        { name: 'Dermatology', description: 'Skin, hair, and nail treatments' },
-        { name: 'Ophthalmology', description: 'Eye care and vision services' }
-      ];
-
-      // Add default departments to Firestore
-      for (const dept of defaultDepartments) {
-        await addDoc(collection(db, `hospitals/${hospitalId}/departments`), {
-          ...dept,
-          isActive: true,
-          createdAt: serverTimestamp()
-        });
-      }
 
       setSuccess(true);
       
