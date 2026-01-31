@@ -185,8 +185,10 @@ const PatientPage = () => {
           console.log('Loaded departments:', departmentsList);
           setDepartments(departmentsList);
           
-          // If no departments, show empty state
+          // If no departments, show empty state with option to try again
           if (departmentsList.length === 0) {
+            console.log('No departments found for this hospital');
+            setDepartments([]);
             setStep(99); // Custom step for no departments
           } else if (step === 1) {
             setStep(2); // Go to department selection
