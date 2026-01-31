@@ -8,6 +8,7 @@ import PatientPage from './PatientPage';
 import HospitalDashboard from './HospitalDashboard';
 import DoctorDashboard from './DoctorDashboard';
 import BackendTestPage from './BackendTestPage';
+import FirebaseAPITestPage from './FirebaseAPITestPage';
 import Layout from './components/Layout';
 import { LayoutProvider } from './components/LayoutContext';
 import ErrorBoundary from './components/ErrorBoundary';
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/dashboard/:hospitalId" element={<HospitalDashboard />} />
                 <Route path="/doctor/:hospitalId" element={<DoctorDashboard />} />
                 <Route path="/test-backend" element={<BackendTestPage />} />
+                <Route path="/test-api" element={<FirebaseAPITestPage />} />
               </Routes>
             </ErrorBoundary>
           </Layout>
