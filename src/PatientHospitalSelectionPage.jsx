@@ -55,9 +55,15 @@ const PatientHospitalSelectionPage = () => {
 
   const handleHospitalSelect = (hospital) => {
     console.log('Selected hospital:', hospital);
+    
+    // Clear any previous patient flow data to prevent interference
+    localStorage.removeItem('waitless_dept');
+    localStorage.removeItem('waitless_doctor');
+    localStorage.removeItem('waitless_token');
+    
     // Store selected hospital in localStorage for patient flow
     localStorage.setItem('selectedHospital', JSON.stringify(hospital));
-    console.log('Stored hospital in localStorage');
+    console.log('Stored hospital in localStorage and cleared previous data');
     navigate('/patient');
   };
 

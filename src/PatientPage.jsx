@@ -329,41 +329,57 @@ const PatientPage = () => {
     setLoading(true);
     try {
       console.log('Fetching doctors for department:', dept.id, dept.name);
-      console.log('Selected department object:', dept);
       
-      // TEMPORARY FIX: Get all doctors and filter by specialty instead of departmentId
+      // Get all doctors for this hospital
       const allDoctorsSnap = await getDocs(collection(db, `hospitals/${selectedHospital.id}/doctors`));
       const allDoctors = allDoctorsSnap.docs.map(doc => ({ 
         id: doc.id, 
         ...doc.data()
       }));
       
-      console.log('All doctors:', allDoctors);
+      console.log('All doctors found:', allDoctors);
       
-      // Check for duplicate departments
-      const departmentsSnap = await getDocs(collection(db, `hospitals/${selectedHospital.id}/departments`));
-      const allDepartments = departmentsSnap.docs.map(doc => ({ 
-        id: doc.id, 
-        ...doc.data()
-      }));
-      console.log('All departments:', allDepartments);
+      // Filter doctors by department - try multiple matching strategies
+      let filteredDoctors = [];
       
-      // Filter by specialty matching department name
-      const filteredDoctors = allDoctors.filter(doctor => {
-        if (dept.name === 'Dental') {
-          return doctor.specialty === 'Dental';
-        } else if (dept.name === 'Cardiology') {
-          return doctor.specialty === 'Cardiologist';
+      if (allDoctors.length > 0) {
+        // Strategy 1: Match by department field
+        filteredDoctors = allDoctors.filter(doctor => 
+          doctor.department === dept.name || 
+          doctor.departmentId === dept.id
+        );
+        
+        // Strategy 2: If no matches, try matching by specialty
+        if (filteredDoctors.length === 0) {
+          filteredDoctors = allDoctors.filter(doctor => {
+            const doctorSpecialty = doctor.specialty?.toLowerCase() || '';
+            const deptName = dept.name?.toLowerCase() || '';
+            
+            // Check if specialty contains department name or vice versa
+            return doctorSpecialty.includes(deptName) || deptName.includes(doctorSpecialty);
+          });
         }
-        return false;
-      });
+        
+        // Strategy 3: If still no matches, show all doctors as fallback
+        if (filteredDoctors.length === 0) {
+          console.log('No specific doctors found, showing all available doctors');
+          filteredDoctors = allDoctors;
+        }
+      }
       
-      console.log('Filtered doctors by specialty:', filteredDoctors);
+      console.log('Filtered doctors:', filteredDoctors);
       setDoctors(filteredDoctors);
+      
+      if (filteredDoctors.length === 0) {
+        console.log('No doctors available for this department');
+      }
+      
       setStep(3);
     } catch (err) {
       console.error('Error fetching doctors:', err);
       console.error('Error details:', err.code, err.message);
+      setDoctors([]);
+      setStep(3);
     } finally {
       setLoading(false);
     }
@@ -420,8 +436,38 @@ const PatientPage = () => {
     }
   };
 
+  const clearAllPatientData = () => {
+    localStorage.removeItem('selectedHospital');
+    localStorage.removeItem('waitless_dept');
+    localStorage.removeItem('waitless_doctor');
+    localStorage.removeItem('waitless_token');
+    
+    setSelectedHospital(null);
+    setSelectedDepartment(null);
+    setSelectedDoctor(null);
+    setTokenData(null);
+    setDepartments([]);
+    setDoctors([]);
+    setStep(1);
+    
+    console.log('All patient data cleared');
+  };
+
   return (
     <div className="patient-container">
+      {/* Patient Header */}
+      <header className="patient-header">
+        <div className="container-standard">
+          <div className="patient-header-content">
+            <Link to="/" className="back-link">
+              ← Back to Home
+            </Link>
+            <button className="btn-outline btn-sm" onClick={clearAllPatientData}>
+              Start Fresh
+            </button>
+          </div>
+        </div>
+      </header>
 
       <main className="patient-main">
         {loading && <LoadingState message="Processing healthcare request..." />}
@@ -502,7 +548,15 @@ const PatientPage = () => {
 
               <div className="hospital-list">
                 {doctors.length === 0 ? (
-                  <div className="empty-state">No doctors available for this department.</div>
+                  <div className="empty-state">
+                    <Stethoscope size={48} />
+                    <h3>No Doctors Available</h3>
+                    <p>No doctors are currently assigned to this department.</p>
+                    <p className="small-text">Please contact the hospital administrator to add doctors to this department.</p>
+                    <button className="btn-secondary" onClick={() => setStep(2)}>
+                      Choose Different Department
+                    </button>
+                  </div>
                 ) : (
                   doctors.map(d => (
                     <div
